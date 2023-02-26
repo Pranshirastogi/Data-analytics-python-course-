@@ -13,7 +13,7 @@ years = list(range(1980, 2014))# list of yrs from 1980 to 2013
 # loading the data and preprocessing it for the sake of humality
 @st.cache_data
 def load_dataset():
-    df = pd.read_excel("dapp/canada.xlsx", sheet_name=1, skiprows=20,skipfooter=2)
+    df = pd.read_excel("canada.xlsx", sheet_name=1, skiprows=20,skipfooter=2)
     df.drop(['Type','Coverage','AREA','REG','DEV'], axis = 1, inplace = True)
     df.rename(columns={'OdName': 'Country','AreaName': 'Continent','DevName': 'Status','RegName':'Region'},inplace=True)
     df.set_index('Country',inplace=True)
