@@ -11,7 +11,7 @@ st.subheader('Data Analytics Project')
 
 st.cache_data()
 def load_dataset():
-    df=pd.read_csv("work/cleaned_gpg.csv")
+    df=pd.read_csv("work/cleaned_gpg.csv", usecols=['year','region','relate','sex','race','marst','occ','ind','classwkr','hrswork','incwage','annhrs','hrwage','inflate','expendbase10','perconexp','potexp','potexp2','o_occ1990','o_occ1950','o_ind1950','o_ind1990'] )
     df.set_index('year',inplace=True)
     return df
 
@@ -20,9 +20,10 @@ with st.spinner('Loading data...'):
 
 
 years = df.index.unique().tolist()
-selectyear = st.selectbox('Select a year', years)
-st.dataframe(f'You selected {selectyear}')
+selectyear = st.sidebar.selectbox('Select a year', years)
+st.info(f'You selected {selectyear}')
 
+st.write(df.shape)
 r = df.race.unique().tolist()
 s = df.sex.unique().tolist()
 occupation = df.occ.unique().tolist()
@@ -30,8 +31,32 @@ industry = df.ind.unique().tolist()
 
 race = st.sidebar.selectbox('select a race', r )
 sex = st.sidebar.selectbox('select a sex', s )
-st.sidebar.selectbox('select a occupation', occupation )
-st.sidebar.selectbox('select a industry', industry )
+occup = st.sidebar.selectbox('select a occupation', occupation )
+indus = st.sidebar.selectbox('select a industry', industry )
 
+if st.sidebar.checkbox('Show raw data'):
+    st.dataframe(df[(df['race']== race) &  (df['sex'] == sex)][:1000])
+    st.dataframe(df[(df['occ']== occup) &  (df['ind'] == indus)][:1000])
 
-st.dataframe(df[(df['race']== race) &  (df['sex'] == sex)][:1000])
+df_year = df[df.index == selectyear]
+
+fig1 = px.area(x=df.index, y=df['incwage'], title=f'INCOME WAGE')
+fig2 = px.scatter(df_year, x=df_year.index, y='occ', title=f'OCCUPATION')
+fig3 = px.bar(x=df.index, y=df['ind'], title=f'INDUSTRY')
+fig4 = px.box(x=df.index, y=df['hrswork'], title=f'HOURS WORKED')
+if st.checkbox('Show income wage'):
+    st.plotly_chart(fig1, use_container_width=True)
+if st.checkbox('Show occupation'):
+    st.plotly_chart(fig2, use_container_width=True)
+if st.checkbox('Show industry'):
+    st.plotly_chart(fig3, use_container_width=True)
+if st.checkbox('Show hours worked'):
+    st.plotly_chart(fig4, use_container_width=True)
+
+fig5 = px.scatter(df, x="incwage", y="hrswork", color="sex", marginal_y="violin", title=f'INCOME WAGE VS HOURS WORKED')
+if st.checkbox('Show income wage vs hours worked'):
+    st.plotly_chart(fig5, use_container_width=True)
+
+if st.checkbox('Show group analysis'):
+    fig7 = px.sunburst(df, path=['classwkr','sex'], values='incwage', title=f'CLASS OF WORKERS AND  THEIR INCOME WAGE')
+    st.plotly_chart(fig7, use_container_width=True)
